@@ -36,10 +36,7 @@ module FatherlyAdvice
     keys.flatten.each do |key|
       raise "unknown module [#{key}]" unless modules.key?(key)
 
-      klass = modules[key]
-      name = key.to_s.camelize
-      puts "ext | #{key} : #{name} : #{klass.inspect}"
-      Object.const_set name, klass
+      Object.const_set key.to_s.camelize, modules[key]
     end
   end
 
