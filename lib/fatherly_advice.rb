@@ -36,7 +36,10 @@ module FatherlyAdvice
     keys.flatten.each do |key|
       raise "unknown module [#{key}]" unless modules.key?(key)
 
-      Object.const_set key.to_s.camelize, modules[key]
+      name = key.to_s.camelize
+      Object.send(:remove_const, name) if Object.const_defined? name
+
+      Object.const_set name, modules[key]
     end
   end
 
