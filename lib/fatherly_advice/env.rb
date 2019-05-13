@@ -72,4 +72,5 @@ module FatherlyAdvice
       end
     end
   end
+  SiteSettings = Env
 end

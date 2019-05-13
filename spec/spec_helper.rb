@@ -36,108 +36,6 @@ end
 require 'active_support/string_inquirer'
 require 'active_support/core_ext/object/blank'
 
-module EnvHelpers
-  def change_env_set(set)
-    return false unless block_given?
-
-    previous = {}
-    set.each do |name, value|
-      new_name           = name.to_s.upcase
-      previous[new_name] = ENV[new_name]
-      if value.nil?
-        ENV.delete new_name
-      else
-        ENV[new_name] = value.to_s
-      end
-    end
-
-    res = yield
-
-    previous.each do |name, value|
-      ENV[name] = value
-    end
-
-    res
-  end
-
-  extend RSpec::Core::SharedContext
-
-  let(:env) { {} }
-end
-
-RSpec.configure do |config|
-  config.include EnvHelpers
-  config.around(:example, env_change: true) do |example|
-    change_env_set(env) { example.run }
-  end
-end
-
-module GeneralHelpers
-  extend RSpec::Core::SharedContext
-  let(:host) { Socket.gethostname }
-end
-
-RSpec.configure do |config|
-  config.include GeneralHelpers
-end
-
-module RailsHelpers
-  class RailsMock
-    class Console
-    end
-
-    def initialize(fields = {})
-      fields.each { |k, v| instance_variable_set "@#{k}", v }
-    end
-
-    def env
-      @env ||= ActiveSupport::StringInquirer.new(ENV['RAILS_ENV'].presence || ENV['RACK_ENV'].presence || 'development')
-    end
-
-    def root
-      @root ||= Pathname.new '/rails/app'
-    end
-
-    def application
-      @application ||= FatherlyAdvice::SimpleHash.new config: { filter_parameters: %i[first_name last_name] }
-    end
-  end
-  class SidekiqMock
-    def self.server?
-      true
-    end
-  end
-
-  extend RSpec::Core::SharedContext
-
-  let(:rails_options) { {} }
-  let(:rails_mock) { RailsMock.new rails_options }
-end
-
-RSpec.configure do |config|
-  config.include RailsHelpers, :rails
-  config.include RailsHelpers, :rails_console
-  config.before(:example, rails: true) do
-    stub_const 'Rails', RailsHelpers::RailsMock.new
-  end
-  config.before(:example, rails_console: true) do
-    stub_const 'Rails::Console', Class.new
-  end
-  config.around(:example, rake: true) do |example|
-    old           = $PROGRAM_NAME
-    $PROGRAM_NAME = '/app/bin/rake'
-    example.run
-    $PROGRAM_NAME = old
-  end
-  config.around(:example, rails_command: true) do |example|
-    old           = $PROGRAM_NAME
-    $PROGRAM_NAME = '/app/bin/rails'
-    example.run
-    $PROGRAM_NAME = old
-  end
-  config.before(:example, sidekiq_server: true) { stub_const 'Sidekiq', RailsHelpers::SidekiqMock }
-end
-
 module LoggingHelpers
   class ExampleLoggingClass
     include FatherlyAdvice::Logging::Mixin
@@ -294,4 +192,112 @@ RSpec.configure do |config|
 
     FatherlyAdvice::WebServer.root = old_root
   end
+end
+
+module EnvHelpers
+  def change_env_set(set)
+    return false unless block_given?
+
+    previous = {}
+    set.each do |name, value|
+      new_name           = name.to_s.upcase
+      previous[new_name] = ENV[new_name]
+      if value.nil?
+        ENV.delete new_name
+      else
+        ENV[new_name] = value.to_s
+      end
+    end
+
+    res = yield
+
+    previous.each do |name, value|
+      ENV[name] = value
+    end
+
+    res
+  end
+
+  extend RSpec::Core::SharedContext
+
+  let(:env) { {} }
+end
+
+RSpec.configure do |config|
+  config.include EnvHelpers
+  config.around(:example, env_change: true) do |example|
+    change_env_set(env) { example.run }
+  end
+end
+
+module GeneralHelpers
+  extend RSpec::Core::SharedContext
+  let(:host) { Socket.gethostname }
+end
+
+RSpec.configure do |config|
+  config.include GeneralHelpers
+  config.before(:example, constants: true) do
+    FatherlyAdvice.modules.keys.each do |key|
+      name = key.to_s.camelize
+      Object.send(:remove_const, name) if Object.const_defined?(name)
+    end
+  end
+end
+
+module RailsHelpers
+  class RailsMock
+    class Console
+    end
+
+    def initialize(fields = {})
+      fields.each { |k, v| instance_variable_set "@#{k}", v }
+    end
+
+    def env
+      @env ||= ActiveSupport::StringInquirer.new(ENV['RAILS_ENV'].presence || ENV['RACK_ENV'].presence || 'development')
+    end
+
+    def root
+      @root ||= Pathname.new '/rails/app'
+    end
+
+    def application
+      @application ||= FatherlyAdvice::SimpleHash.new config: { filter_parameters: %i[first_name last_name] }
+    end
+  end
+  class SidekiqMock
+    def self.server?
+      true
+    end
+  end
+
+  extend RSpec::Core::SharedContext
+
+  let(:rails_options) { {} }
+  let(:rails_mock) { RailsMock.new rails_options }
+end
+
+RSpec.configure do |config|
+  config.include RailsHelpers, :rails
+  config.include RailsHelpers, :rails_console
+  config.before(:example, rails: true) do
+    stub_const 'Rails', RailsHelpers::RailsMock.new
+  end
+  config.before(:example, rails_console: true) do
+    stub_const 'Rails::Console', Class.new
+  end
+  config.around(:example, rake: true) do |example|
+    old           = $PROGRAM_NAME
+    $PROGRAM_NAME = '/app/bin/rake'
+    example.run
+    $PROGRAM_NAME = old
+  end
+  config.around(:example, rails_command: true) do |example|
+    old           = $PROGRAM_NAME
+    $PROGRAM_NAME = '/app/bin/rails'
+    example.run
+    $PROGRAM_NAME = old
+  end
+  config.before(:example, sidekiq_server: true) { stub_const 'Sidekiq', RailsHelpers::SidekiqMock }
 end

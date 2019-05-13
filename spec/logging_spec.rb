@@ -30,7 +30,7 @@ RSpec.describe FatherlyAdvice::Logging::Mixin, :logs, type: :lib do
       after do
         expect_logs [:error,
                      [%(LH:ExampleLoggingClass : [#{host}] EXCEPTION : RuntimeError : i : Hello! | data : {:a=>"b", :first_name=>"[FILTERED]"} |),
-                      %(spec/spec_helper.rb:158:in `do_except')]]
+                      %(spec/spec_helper.rb:56:in `do_except')]]
       end
       it { subject.do_except }
     end
@@ -64,7 +64,7 @@ RSpec.describe FatherlyAdvice::Logging::Mixin, :logs, type: :lib do
       after do
         expect_logs [:error,
                      [%(LH:ExampleLoggingClass : [#{host}] EXCEPTION : RuntimeError : i : Hello! | data : {:a=>"b"}),
-                      'spec/spec_helper.rb:181:in']]
+                      'spec/spec_helper.rb:79:in']]
       end
       it { subject.do_except }
     end
