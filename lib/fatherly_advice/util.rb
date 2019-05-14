@@ -29,6 +29,8 @@ module FatherlyAdvice
         ::ActionDispatch::Http::ParameterFilter.new(WebServer.parameter_filters).filter hsh
       end
 
+      module_function
+
       def default_filters
         %i[
           account_name account_number acct_no address address_1 address_2 alt_phone api_access_token
@@ -43,8 +45,6 @@ module FatherlyAdvice
           token user user_token zip
         ]
       end
-
-      module_function :default_filters
     end
 
     module SafeDependencies

@@ -70,7 +70,7 @@ module FatherlyAdvice
         end
 
         def error_reporter
-          @error_reporter
+          @error_reporter || rollbar
         end
 
         def error_reporter=(value)
@@ -133,6 +133,10 @@ module FatherlyAdvice
             reject { |x| x.start_with?(gem_prefix_ignored) }[0, size].
             map { |x| x.gsub(WebServer.root.to_s + '/', '') }.
             join(' : ')
+        end
+
+        def rollbar
+          Object.const_defined?(:Rollbar) ? Object.const_get(:Rollbar) : nil
         end
       end
     end
