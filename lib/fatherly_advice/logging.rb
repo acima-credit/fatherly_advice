@@ -69,14 +69,6 @@ module FatherlyAdvice
           @logger = value
         end
 
-        def error_reporter
-          @error_reporter || rollbar
-        end
-
-        def error_reporter=(value)
-          @error_reporter = value
-        end
-
         def log_debug(message, *args)
           log :debug, message, *args
         end
@@ -104,7 +96,7 @@ module FatherlyAdvice
           msg = "[#{host}] EXCEPTION : #{e.class.name} : #{e.message}"
           msg += " | data : #{safe_arg_hash(data)}" if data.present?
           msg += " | #{clean_backtrace(e)}" if e.backtrace
-          log(:error, msg).tap { error_reporter&.error(e, data) }
+          log(:error, msg).tap { logger&.report_error e, data }
         end
 
         def log_and_raise_exception(e, data = {})
@@ -134,15 +126,11 @@ module FatherlyAdvice
             map { |x| x.gsub(WebServer.root.to_s + '/', '') }.
             join(' : ')
         end
-
-        def rollbar
-          Object.const_defined?(:Rollbar) ? Object.const_get(:Rollbar) : nil
-        end
       end
     end
 
     class SwitchableLogger
-      attr_writer :provider
+      attr_writer :provider, :error_reporter
 
       def initialize(provider = nil)
         @provider = provider
@@ -150,6 +138,14 @@ module FatherlyAdvice
 
       def provider
         @provider || rails_logger || stdout_logger
+      end
+
+      def error_reporter
+        @error_reporter
+      end
+
+      def report_error(e, data = {})
+        error_reporter&.error e, data
       end
 
       def provider_type

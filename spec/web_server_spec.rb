@@ -248,7 +248,7 @@ RSpec.describe FatherlyAdvice::WebServer, :env_change do
       it { expect(result).to eq 'redis://localhost:1234/3' }
     end
   end
-  describe '.parameter_filters', :focus2 do
+  describe '.parameter_filters' do
     let(:result) { described_class.parameter_filters }
     context 'missing' do
       it { expect(result).to eq [] }

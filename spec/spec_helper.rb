@@ -121,6 +121,19 @@ module LoggingHelpers
       @entries << [type, msg]
     end
   end
+  class ErrorReporter
+    attr_reader :entries
+
+    def initialize
+      @entries = []
+    end
+
+    def error(e, data = {})
+      entries << { exception: e, data: data }
+    end
+
+    delegate :size, :clear, to: :entries
+  end
 
   extend RSpec::Core::SharedContext
 
@@ -173,7 +186,35 @@ module LoggingHelpers
     return unless FatherlyAdvice::Env.debug_test_logs?
 
     logger.entries.each_with_index do |(type, msg), idx|
-      puts format('%2i > %-6.6s : %s', idx, type, msg)
+      puts format('%2i : log > %-6.6s : %s', idx, type, msg)
+    end
+  end
+
+  def expect_errors(*tuples)
+    reporter = logger.error_reporter
+    expect(reporter).to be_a ErrorReporter
+
+    debug_errors
+
+    act_size = reporter.entries.size
+    exp_size = tuples.size
+    expect(act_size).to eq(exp_size), format('expected to have %i error entries but found %i', exp_size, act_size)
+
+    tuples.each_with_index do |(exp_exc_type, exp_exc_msg, exp_hsh), idx|
+      act_hsh = reporter.entries[idx]
+      act_exc = act_hsh[:exception]
+      act_data = act_hsh[:data]
+      expect(act_exc.class.name).to eq(exp_exc_type.to_s) if exp_exc_type
+      expect(act_exc.message).to eq(exp_exc_msg) if exp_exc_msg
+      expect(act_data).to eq(exp_hsh) if exp_hsh
+    end
+  end
+
+  def debug_errors
+    return unless FatherlyAdvice::Env.debug_test_logs?
+
+    logger.error_reporter.entries.each_with_index do |hsh, idx|
+      puts format('%2i : error > %s : %-20.20s : %s', idx, hsh[:exception].class.name, hsh[:exception].message[0, 20], hsh[:data].inspect)
     end
   end
 end
@@ -181,14 +222,19 @@ end
 RSpec.configure do |config|
   config.include LoggingHelpers, :logs
   config.around(:example, logs: true) do |example|
-    old_root = FatherlyAdvice::WebServer.root
+    old_root                       = FatherlyAdvice::WebServer.root
     FatherlyAdvice::WebServer.root = ROOT
 
     logger          = example_class.logger
     old_provider    = logger.provider_type == :custom ? logger.provider : nil
+    old_reporter    = logger.error_reporter
     logger.provider = LoggingHelpers::MemoryLogger.new
+    logger.error_reporter = LoggingHelpers::ErrorReporter.new
+
     example.run
+
     logger.provider = old_provider
+    logger.error_reporter = old_reporter
 
     FatherlyAdvice::WebServer.root = old_root
   end
