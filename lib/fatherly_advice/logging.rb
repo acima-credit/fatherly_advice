@@ -117,7 +117,7 @@ module FatherlyAdvice
         end
 
         def gem_prefix_ignored
-          @gem_prefix_ignored ||= Gem.bin_path('rake').split('/rake-').first
+          @gem_prefix_ignored ||= Gem.bin_path('rake', 'rake').split('/rake-').first
         end
 
         def clean_backtrace(e, size = 6)

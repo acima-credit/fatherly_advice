@@ -105,6 +105,18 @@ module FatherlyAdvice
         root.join(*parts.map(&:to_s))
       end
 
+      def git_revision
+        @git_revision ||= `cd #{root} && git rev-parse --short HEAD`.chop
+      end
+
+      def file_revision
+        @file_revision ||= path('REVISION').exist? ? File.read(path('REVISION')).chop : ''
+      end
+
+      def revision
+        [git_revision, file_revision, 'NOGIT'].reject(&:empty?).first[0, 9]
+      end
+
       def info_msg
         %(WebServer : domain=#{domain} host=#{host} stage=#{app_stage} env=#{rails_stage})
       end
