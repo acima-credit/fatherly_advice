@@ -6,7 +6,15 @@ RSpec.describe FatherlyAdvice do
   end
 
   it 'has module names' do
-    expect(described_class.modules.keys).to eq %i[env web_server simple_hash logging only_once site_settings]
+    expect(described_class.modules.keys).to eq %i[
+      env
+      web_server
+      simple_hash
+      logging
+      only_once
+      site_settings
+      enums
+    ]
   end
 
   it 'loads some extensions', :constants do

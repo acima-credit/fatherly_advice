@@ -21,6 +21,7 @@ require_relative 'fatherly_advice/web_server'
 require_relative 'fatherly_advice/simple_hash'
 require_relative 'fatherly_advice/logging'
 require_relative 'fatherly_advice/only_once'
+require_relative 'fatherly_advice/enums'
 
 module FatherlyAdvice
   def self.modules
@@ -29,10 +30,13 @@ module FatherlyAdvice
                               simple_hash: SimpleHash,
                               logging: Logging,
                               only_once: OnlyOnce,
-                              site_settings: SiteSettings
+                              site_settings: SiteSettings,
+                              enums: Enums
   end
 
   def self.ext(*keys)
+    keys = modules.keys if keys == [:all]
+
     keys.flatten.each do |key|
       raise "unknown module [#{key}]" unless modules.key?(key)
 
