@@ -15,9 +15,7 @@ RSpec.describe FatherlyAdvice::Enums do
     it { expect(subject::Y).to eq 'yes' }
     it { expect(subject::B).to eq 'bee' }
   end
-  context 'helpers' do
-    let(:exp_hsh) { { 'A' => 'a', 'Z' => 'z', 'SOME' => 'some', 'Y' => 'yes', 'B' => 'bee' } }
-    it { expect(subject.values).to eq %w[a z some yes bee] }
+  context 'keys' do
     it { expect(subject.keys).to eq %w[A Z SOME Y B] }
     it { expect(subject.key?(:a)).to eq true }
     it { expect(subject.key?('A')).to eq true }
@@ -25,8 +23,16 @@ RSpec.describe FatherlyAdvice::Enums do
     it { expect(subject.key?('t')).to eq false }
     it { expect(subject.include?('t')).to eq false }
     it { expect(subject.includes?('t')).to eq false }
-    it { expect(subject.check_value!('BEE')).to eq 'bee' }
-    it { expect { subject.check_value!('other') }.to raise_error 'unknown value [other]' }
+    it { expect(subject.get!('B')).to eq 'bee' }
+    it { expect { subject.get!('other') }.to raise_error 'unknown key [other]' }
+  end
+  context 'values' do
+    it { expect(subject.values).to eq %w[a z some yes bee] }
+    it { expect(subject.value!('BEE')).to eq 'bee' }
+    it { expect { subject.value! 'other' }.to raise_error 'unknown value [other]' }
+  end
+  context 'helpers' do
+    let(:exp_hsh) { { 'A' => 'a', 'Z' => 'z', 'SOME' => 'some', 'Y' => 'yes', 'B' => 'bee' } }
     it { expect(subject.to_h).to eq(exp_hsh) }
     it { expect(subject.to_hash).to eq(exp_hsh) }
   end
