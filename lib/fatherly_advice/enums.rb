@@ -21,8 +21,18 @@ module FatherlyAdvice
         entries.include? conv_key(key)
       end
 
-      alias include? key?
-      alias includes? key?
+      def include?(value)
+        values.include? conv_value(value)
+      end
+
+      alias includes? include?
+
+      def check_value!(value)
+        found = include?(value) ? conv_value(value) : false
+        raise "unknown value [#{value}]" unless found
+
+        found
+      end
 
       def values
         entries.map { |key| get key }
