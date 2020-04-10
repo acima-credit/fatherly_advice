@@ -27,7 +27,20 @@ module FatherlyAdvice
 
       alias includes? include?
 
-      def check_value!(value)
+      def get(key)
+        return nil unless key?(key)
+
+        const_get conv_key(key)
+      end
+
+      def get!(key)
+        found = get key
+        raise "unknown key [#{key}]" if found.nil?
+
+        found
+      end
+
+      def value!(value)
         found = include?(value) ? conv_value(value) : false
         raise "unknown value [#{value}]" unless found
 
@@ -52,10 +65,6 @@ module FatherlyAdvice
 
       def entries
         @entries ||= Set.new
-      end
-
-      def get(key)
-        const_get conv_key(key)
       end
 
       def conv_key(key)
