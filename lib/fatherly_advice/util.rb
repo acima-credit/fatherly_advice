@@ -1,5 +1,17 @@
 # frozen_string_literal: true
 
+begin
+  require 'active_support/parameter_filter'
+  FatherlyAdvice::SAFE_ARG_CLASS = ::ActiveSupport::ParameterFilter
+rescue LoadError
+  begin
+      require 'action_dispatch/http/parameter_filter'
+      FatherlyAdvice::SAFE_ARG_CLASS = ::ActionDispatch::Http::ParameterFilter
+  rescue LoadError
+    FatherlyAdvice::SAFE_ARG_CLASS = nil
+    end
+end
+
 module FatherlyAdvice
   module Util
     module ParameterFiltering
@@ -26,7 +38,9 @@ module FatherlyAdvice
       end
 
       def safe_arg_hash(hsh)
-        ::ActionDispatch::Http::ParameterFilter.new(WebServer.parameter_filters).filter hsh
+        raise 'missing safe argument class' unless FatherlyAdvice::SAFE_ARG_CLASS
+
+        FatherlyAdvice::SAFE_ARG_CLASS.new(WebServer.parameter_filters).filter hsh
       end
 
       module_function

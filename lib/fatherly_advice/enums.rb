@@ -17,6 +17,13 @@ module FatherlyAdvice
         entries.to_a
       end
 
+      def key?(key)
+        entries.include? conv_key(key)
+      end
+
+      alias include? key?
+      alias includes? key?
+
       def values
         entries.map { |key| get key }
       end
@@ -35,10 +42,6 @@ module FatherlyAdvice
 
       def entries
         @entries ||= Set.new
-      end
-
-      def include?(key)
-        entries.include? conv_key(key)
       end
 
       def get(key)

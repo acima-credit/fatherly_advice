@@ -7,7 +7,6 @@ require 'active_support/core_ext/object/try'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/inflector/methods'
 require 'active_support/core_ext/integer/inflections'
-require 'action_dispatch/http/parameter_filter'
 
 module FatherlyAdvice
   class Error < StandardError
