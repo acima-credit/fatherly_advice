@@ -21,6 +21,7 @@ require_relative 'fatherly_advice/simple_hash'
 require_relative 'fatherly_advice/logging'
 require_relative 'fatherly_advice/only_once'
 require_relative 'fatherly_advice/enums'
+require_relative 'fatherly_advice/scrubber'
 
 module FatherlyAdvice
   def self.modules

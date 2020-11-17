@@ -114,6 +114,8 @@ Naming/UncommunicativeMethodParamName:
     - _
     - _e
     - e
+    - k
+    - v
     - to
     - tx
 
