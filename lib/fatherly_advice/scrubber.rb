@@ -9,7 +9,7 @@ module FatherlyAdvice
     end
 
     def scrub_keys(hsh, *keys)
-      keys.each { |key| scrub hsh[key] }
+      keys.each { |key| scrub_hash hsh[key] }
       hsh
     end
 

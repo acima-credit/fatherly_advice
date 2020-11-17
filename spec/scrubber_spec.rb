@@ -17,40 +17,18 @@ RSpec.describe FatherlyAdvice::Scrubber, :focus do
       it { expect(result).to eq(username: '****', 'password' => '**', age: '**', some: 'other') }
     end
     context 'nested hash' do
-      let(:input) do
-        {
-          data: basic,
-          some: 'other'
-        }
-      end
-      let(:expected) do
-        { data: basic_cnv, some: 'other' }
-      end
+      let(:input) { { data: basic, some: 'other' } }
+      let(:expected) { { data: basic_cnv, some: 'other' } }
       it { expect(result).to eq(expected) }
     end
     context 'nested array' do
-      let(:input) do
-        {
-          data: [basic, basic],
-          some: 'other'
-        }
-      end
-      let(:expected) do
-        { data: [basic_cnv, basic_cnv], some: 'other' }
-      end
+      let(:input) { { data: [basic, basic], some: 'other' } }
+      let(:expected) { { data: [basic_cnv, basic_cnv], some: 'other' } }
       it { expect(result).to eq(expected) }
     end
     context 'nested complex' do
-      let(:input) do
-        {
-          payload: basic,
-          entries: [basic, basic],
-          some: 'other'
-        }
-      end
-      let(:expected) do
-        { entries: [basic_cnv, basic_cnv], payload: basic_cnv, some: 'other' }
-      end
+      let(:input) { { payload: basic, entries: [basic, basic], some: 'other' } }
+      let(:expected) { { entries: [basic_cnv, basic_cnv], payload: basic_cnv, some: 'other' } }
       it { expect(result).to eq(expected) }
     end
     context 'nested complex' do
@@ -171,6 +149,12 @@ RSpec.describe FatherlyAdvice::Scrubber, :focus do
           }
         }
       end
+      it { expect(result).to eq(expected) }
+    end
+    context 'double' do
+      let(:result) { subject.scrub_keys input, :payload, :data }
+      let(:input) { { payload: basic, data: basic, some: 'other' } }
+      let(:expected) { { payload: basic_cnv, data: basic_cnv, some: 'other' } }
       it { expect(result).to eq(expected) }
     end
   end
