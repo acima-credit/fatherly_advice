@@ -54,11 +54,25 @@ module FatherlyAdvice
       end
 
       def console?
-        !!defined?(::Rails::Console)
+        rails? && !!defined?(::Rails::Console)
+      end
+
+      def server?
+        rails? && !!defined?(::Rails::Server)
       end
 
       def debug?
         Env.enabled?(:DEBUG) || console?
+      end
+
+      def logger
+        if rails?
+          ::Rails.logger
+        elsif Object.const_defined?(:LOGGER)
+          Object.const_get :LOGGER
+        else
+          Logger.new $stdout
+        end
       end
 
       def tld
@@ -75,6 +89,16 @@ module FatherlyAdvice
 
       def host
         @host ||= Socket.gethostname
+      end
+
+      def app_name
+        if Object.const_defined?(:APP_NAME)
+          Object.const_get :APP_NAME
+        elsif rails?
+          rails.application.railtie_name.gsub(/_application$/, '')
+        else
+          subdomain
+        end
       end
 
       def rake?

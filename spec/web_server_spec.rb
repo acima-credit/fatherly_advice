@@ -181,6 +181,20 @@ RSpec.describe FatherlyAdvice::WebServer, :env_change do
       it { expect(result).to eq true }
     end
   end
+  describe '.logger', :focus do
+    let(:result) { described_class.logger }
+    context 'Rails', :rails do
+      it { expect(result).to eq rails_logger }
+    end
+    context 'LOGGER' do
+      let(:const_logger) { Logger.new $stdout }
+      before { stub_const 'LOGGER', const_logger }
+      it { expect(result).to eq const_logger }
+    end
+    context 'other' do
+      it { expect(result).to be_a Logger }
+    end
+  end
   describe '.tld' do
     let(:result) { described_class.tld }
     context 'default' do
@@ -228,6 +242,20 @@ RSpec.describe FatherlyAdvice::WebServer, :env_change do
   end
   describe '.host' do
     it { expect(described_class.host).to eq host }
+  end
+  describe '.app_name', :focus do
+    let(:result) { described_class.app_name }
+    context 'APP_NAME' do
+      let(:const_app_name) { 'hello_app' }
+      before { stub_const 'APP_NAME', const_app_name }
+      it { expect(result).to eq const_app_name }
+    end
+    context 'Rails', :rails do
+      it { expect(result).to eq 'my_app' }
+    end
+    context 'other' do
+      it { expect(result).to eq 'missing' }
+    end
   end
   describe '.rake?', :rake do
     it { expect(described_class.rake?).to eq true }
