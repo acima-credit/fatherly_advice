@@ -309,9 +309,17 @@ module RailsHelpers
     end
 
     def application
-      @application ||= FatherlyAdvice::SimpleHash.new config: { filter_parameters: %i[first_name last_name] }
+      @application ||= FatherlyAdvice::SimpleHash.new config: { filter_parameters: %i[first_name last_name] },
+                                                      railtie_name: 'my_app_application'
+    end
+
+    LOGGER = Logger.new $stdout
+
+    def logger
+      LOGGER
     end
   end
+
   class SidekiqMock
     def self.server?
       true
@@ -322,6 +330,7 @@ module RailsHelpers
 
   let(:rails_options) { {} }
   let(:rails_mock) { RailsMock.new rails_options }
+  let(:rails_logger) { RailsMock::LOGGER }
 end
 
 RSpec.configure do |config|

@@ -68,6 +68,14 @@ module FatherlyAdvice
         Object.const_defined?(:Rails) ? Object.const_get(:Rails) : nil
       end
 
+      def rails?
+        !!rails
+      end
+
+      def rails_init?
+        rails && Object.const_defined?(:RAILS_INITIALIZED)
+      end
+
       def sidekiq
         Object.const_defined?(:Sidekiq) ? Object.const_get(:Sidekiq) : nil
       end
