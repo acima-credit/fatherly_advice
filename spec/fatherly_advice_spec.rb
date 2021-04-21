@@ -14,6 +14,7 @@ RSpec.describe FatherlyAdvice do
       only_once
       site_settings
       enums
+      json_web_token
     ]
   end
 

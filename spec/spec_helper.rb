@@ -7,7 +7,9 @@ SimpleCov.start
 
 require 'rspec/core/shared_context'
 require 'json'
+require 'timecop'
 require 'fatherly_advice'
+require 'yaml'
 
 ROOT = Pathname.new(__FILE__).expand_path.dirname.dirname
 
@@ -178,7 +180,8 @@ module LoggingHelpers
       act_type, act_msg = logger.entries[idx]
       expect(act_type).to eq(exp_type), format('expected log[%i] meth to be %s but was %s', idx, exp_type.inspect, act_type.inspect)
       msg_match = compare_log_entry act_type, act_msg, exp_type, exp_msg
-      expect(msg_match).to eq(true), format("expected log[%i] message\n  to be   [%s]\n  but was [%s]", idx, exp_msg.inspect, act_msg)
+      puts [exp_msg, act_msg].to_yaml unless msg_match
+      expect(msg_match).to eq(true), format("expected log[%i] message\n  to be   %s\n  but was [%s]", idx, exp_msg.inspect, act_msg.inspect)
     end
   end
 

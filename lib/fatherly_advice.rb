@@ -7,6 +7,10 @@ require 'active_support/core_ext/object/try'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/inflector/methods'
 require 'active_support/core_ext/integer/inflections'
+require 'active_support/cache'
+require 'active_support/cache/redis_cache_store'
+require 'jwt'
+require 'excon'
 
 module FatherlyAdvice
   class Error < StandardError
@@ -22,6 +26,7 @@ require_relative 'fatherly_advice/logging'
 require_relative 'fatherly_advice/only_once'
 require_relative 'fatherly_advice/enums'
 require_relative 'fatherly_advice/scrubber'
+require_relative 'fatherly_advice/jason_web_token'
 
 module FatherlyAdvice
   def self.modules
@@ -31,7 +36,8 @@ module FatherlyAdvice
                               logging: Logging,
                               only_once: OnlyOnce,
                               site_settings: SiteSettings,
-                              enums: Enums
+                              enums: Enums,
+                              json_web_token: JsonWebToken
   end
 
   def self.ext(*keys)

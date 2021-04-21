@@ -22,6 +22,19 @@ module FatherlyAdvice
         get name, &blk
       end
 
+      def get_list(name, defaults = nil)
+        return defaults unless key?(name)
+
+        value = ::ENV[conv_key(name)].to_s.split(',')
+        block_given? ? yield(value) : value
+      end
+
+      def get_list!(name, &blk)
+        raise Error, "Missing ENV['#{conv_key(name)}']" unless key?(name)
+
+        get_list name, &blk
+      end
+
       def enabled?(name, default = false)
         return default unless key?(name)
 
