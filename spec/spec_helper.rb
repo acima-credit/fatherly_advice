@@ -11,6 +11,8 @@ require 'timecop'
 require 'fatherly_advice'
 require 'yaml'
 
+ENV['REDIS_URL'] ||= 'redis://localhost:6379/5'
+
 ROOT = Pathname.new(__FILE__).expand_path.dirname.dirname
 
 RSpec.configure do |config|
@@ -32,6 +34,15 @@ RSpec.configure do |config|
 
   config.mock_with :rspec do |mocks|
     mocks.verify_partial_doubles = true
+  end
+
+  config.before(:all) do
+    Excon.defaults[:mock] = true
+    # Excon.stub({}, {:body => 'Fallback', :status => 500})
+  end
+
+  config.after(:each) do
+    Excon.stubs.clear
   end
 end
 

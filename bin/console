@@ -10,5 +10,7 @@ require "fatherly_advice"
 # require "pry"
 # Pry.start
 
+FatherlyAdvice.ext_all
+
 require "irb"
 IRB.start(__FILE__)

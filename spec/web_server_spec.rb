@@ -181,7 +181,7 @@ RSpec.describe FatherlyAdvice::WebServer, :env_change do
       it { expect(result).to eq true }
     end
   end
-  describe '.logger', :focus do
+  describe '.logger' do
     let(:result) { described_class.logger }
     context 'Rails', :rails do
       it { expect(result).to eq rails_logger }
@@ -243,7 +243,7 @@ RSpec.describe FatherlyAdvice::WebServer, :env_change do
   describe '.host' do
     it { expect(described_class.host).to eq host }
   end
-  describe '.app_name', :focus do
+  describe '.app_name' do
     let(:result) { described_class.app_name }
     context 'APP_NAME' do
       let(:const_app_name) { 'hello_app' }
@@ -269,7 +269,7 @@ RSpec.describe FatherlyAdvice::WebServer, :env_change do
   describe '.redis_url' do
     let(:result) { described_class.redis_url }
     context 'default' do
-      it { expect(result).to eq 'redis://localhost:6379/0' }
+      it { expect(result).to eq 'redis://localhost:6379/5' }
     end
     context 'custom' do
       let(:env) { { redis_url: 'redis://localhost:1234/3' } }

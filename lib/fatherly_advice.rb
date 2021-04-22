@@ -3,6 +3,7 @@
 require 'socket'
 require 'pathname'
 require 'logger'
+require 'zlib'
 require 'active_support/core_ext/object/try'
 require 'active_support/core_ext/string/inflections'
 require 'active_support/inflector/methods'
