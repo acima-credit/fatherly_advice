@@ -15,6 +15,8 @@ ENV['REDIS_URL'] ||= 'redis://localhost:6379/5'
 
 ROOT = Pathname.new(__FILE__).expand_path.dirname.dirname
 
+Time.zone = 'Mountain Time (US & Canada)'
+
 RSpec.configure do |config|
   config.default_formatter = :documentation if ENV['PRETTY']
   config.filter_run focus: true if ENV['FOCUS'].to_s == 'true'

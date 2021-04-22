@@ -10,6 +10,8 @@ require 'active_support/inflector/methods'
 require 'active_support/core_ext/integer/inflections'
 require 'active_support/cache'
 require 'active_support/cache/redis_cache_store'
+require 'active_support/core_ext/date'
+require 'active_support/core_ext/numeric/time'
 require 'jwt'
 require 'excon'
 

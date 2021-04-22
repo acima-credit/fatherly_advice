@@ -12,5 +12,7 @@ require "fatherly_advice"
 
 FatherlyAdvice.ext_all
 
+Time.zone = 'Mountain Time (US & Canada)'
+
 require "irb"
 IRB.start(__FILE__)
