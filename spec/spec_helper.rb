@@ -7,9 +7,15 @@ SimpleCov.start
 
 require 'rspec/core/shared_context'
 require 'json'
+require 'timecop'
 require 'fatherly_advice'
+require 'yaml'
+
+ENV['REDIS_URL'] ||= 'redis://localhost:6379/5'
 
 ROOT = Pathname.new(__FILE__).expand_path.dirname.dirname
+
+Time.zone = 'Mountain Time (US & Canada)'
 
 RSpec.configure do |config|
   config.default_formatter = :documentation if ENV['PRETTY']
@@ -30,6 +36,15 @@ RSpec.configure do |config|
 
   config.mock_with :rspec do |mocks|
     mocks.verify_partial_doubles = true
+  end
+
+  config.before(:all) do
+    Excon.defaults[:mock] = true
+    # Excon.stub({}, {:body => 'Fallback', :status => 500})
+  end
+
+  config.after(:each) do
+    Excon.stubs.clear
   end
 end
 
@@ -178,7 +193,8 @@ module LoggingHelpers
       act_type, act_msg = logger.entries[idx]
       expect(act_type).to eq(exp_type), format('expected log[%i] meth to be %s but was %s', idx, exp_type.inspect, act_type.inspect)
       msg_match = compare_log_entry act_type, act_msg, exp_type, exp_msg
-      expect(msg_match).to eq(true), format("expected log[%i] message\n  to be   [%s]\n  but was [%s]", idx, exp_msg.inspect, act_msg)
+      puts [exp_msg, act_msg].to_yaml unless msg_match
+      expect(msg_match).to eq(true), format("expected log[%i] message\n  to be   %s\n  but was [%s]", idx, exp_msg.inspect, act_msg.inspect)
     end
   end
 

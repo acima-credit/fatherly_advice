@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe FatherlyAdvice::Scrubber, :focus do
+RSpec.describe FatherlyAdvice::Scrubber do
   let(:keys) { %i[username password age] }
   subject { described_class.new(*keys) }
 

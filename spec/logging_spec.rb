@@ -29,8 +29,10 @@ RSpec.describe FatherlyAdvice::Logging::Mixin, :logs, type: :lib do
     context 'exception', :rails do
       after do
         expect_logs [:error,
-                     [%(LH:ExampleLoggingClass : [#{host}] EXCEPTION : RuntimeError : i : Hello! | data : {:a=>"b", :first_name=>"[FILTERED]"} |),
-                      %(spec/spec_helper.rb:56:in `do_except')]]
+                     [%(LH:ExampleLoggingClass : [#{host}] EXCEPTION : RuntimeError : i : Hello! ) +
+                      %(| data : {:a=>"b", :first_name=>"[FILTERED]"} | spec/spec_helper.rb:71:in `do_except' ) +
+                      %(: spec/logging_spec.rb:38:in `block (4 levels) in <top (required)>' : spec/spec_helper.rb:250:in ) +
+                      %(`block (2 levels) in <top (required)>')]]
         expect_errors ['RuntimeError', 'i : Hello!', a: 'b', first_name: 'John']
       end
       it { subject.do_except }
@@ -67,8 +69,10 @@ RSpec.describe FatherlyAdvice::Logging::Mixin, :logs, type: :lib do
     context 'exception' do
       after do
         expect_logs [:error,
-                     [%(LH:ExampleLoggingClass : [#{host}] EXCEPTION : RuntimeError : i : Hello! | data : {:a=>"b"}),
-                      'spec/spec_helper.rb:79:in']]
+                     [%(LH:ExampleLoggingClass : [petorutti.local] EXCEPTION : RuntimeError : i : Hello! ) +
+                      %(| data : {:a=>"b"} | spec/spec_helper.rb:94:in `do_except' : spec/logging_spec.rb:78:in ) +
+                      %(`block (4 levels) in <top (required)>' : spec/spec_helper.rb:250:in `block (2 levels) ) +
+                      %(in <top (required)>')]]
         expect_errors ['RuntimeError', 'i : Hello!', a: 'b']
       end
       it { subject.do_except }

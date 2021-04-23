@@ -55,7 +55,8 @@ module FatherlyAdvice
     end
 
     def fetch(key)
-      convert(super(key.to_sym) { super(key.to_s) })
+      value = super(key.to_sym) { super(key.to_s) }
+      convert value
     end
 
     private

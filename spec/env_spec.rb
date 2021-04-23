@@ -6,7 +6,7 @@ RSpec.describe FatherlyAdvice::Env, :env_change do
   let(:error_class) { FatherlyAdvice::Error }
   let(:key) { 'SOME_VAR' }
   let(:value) { '123' }
-  let(:env) { { key => value, 'OTHER_KEY' => 'true', 'ANOTHER_KEY' => 'false' } }
+  let(:env) { { key => value, 'OTHER_KEY' => 'true', 'ANOTHER_KEY' => 'false', 'LIST' => 'a,b,c' } }
   subject { described_class }
   context 'get / missing' do
     it('gt same    K') { expect(subject.get(key)).to eq value }
@@ -31,6 +31,10 @@ RSpec.describe FatherlyAdvice::Env, :env_change do
     it('. default  D') { expect(subject.get('somevar', value)).to eq value }
     it('gt missing X') { expect { subject.get!('somevar') }.to raise_error(error_class, "Missing ENV['SOMEVAR']") }
     it('. missing  X') { expect { subject.somevar! }.to raise_error(error_class, "Missing ENV['SOMEVAR']") }
+  end
+  context 'get_list' do
+    it('gets a list ') { expect(subject.get_list(:list)).to eq %w[a b c] }
+    it('gt missing X') { expect(subject.get_list(:list_missing)).to be_nil }
   end
   context '#enabled?' do
     it('uses true   ') { expect(subject.enabled?(:other_key)).to eq true }
