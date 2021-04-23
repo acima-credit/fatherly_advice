@@ -29,7 +29,7 @@ require_relative 'fatherly_advice/logging'
 require_relative 'fatherly_advice/only_once'
 require_relative 'fatherly_advice/enums'
 require_relative 'fatherly_advice/scrubber'
-require_relative 'fatherly_advice/jason_web_token'
+require_relative 'fatherly_advice/json_web_token'
 
 module FatherlyAdvice
   def self.modules
