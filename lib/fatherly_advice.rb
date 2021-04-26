@@ -12,6 +12,7 @@ require 'active_support/cache'
 require 'active_support/cache/redis_cache_store'
 require 'active_support/core_ext/date'
 require 'active_support/core_ext/numeric/time'
+require 'active_support/notifications'
 require 'jwt'
 require 'excon'
 

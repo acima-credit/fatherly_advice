@@ -69,6 +69,14 @@ module FatherlyAdvice
       def clear_cache
         [local_cache, shared_cache].map(&:clear)
       end
+
+      def configure
+        raise 'missing block' unless block_given?
+
+        config = SimpleHash.new server: Server,
+                                client: Client
+        yield config
+      end
     end
   end
 end
