@@ -45,6 +45,8 @@ module FatherlyAdvice
       end
 
       def request(meth, path, options = {})
+        raise ArgumentError, 'missing path' if path.blank?
+
         options = default_request_options.merge options
         Excon.send meth, path, options
       end

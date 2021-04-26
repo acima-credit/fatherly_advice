@@ -95,9 +95,22 @@ module FatherlyAdvice
           apps.any? { |x| x.matches? name }
         end
 
+        # Checks if we have all the required values to get an access token
+        #
+        # @param [String] app_name the name of the app we need to authenticate to
+        def can_get_access_tokens?(app_name)
+          providers = Server.providers.select { |x| x.token_url.present? }
+          return false if providers.empty?
+
+          app = get_app app_name
+          providers.
+            map { |provider| request_hash_for_access_token app, provider }.
+            any? { |hsh| hsh.values.all?(&:present?) }
+        end
+
         # Get access tokens from all known oauth2 providers for an app we are trying to reach
         #
-        # @pfram [String] app_name the name of the app we need to authenticate to
+        # @param [String] app_name the name of the app we need to authenticate to
         def get_access_tokens(app_name)
           app = get_app app_name
           Server.providers.map { |provider| get_access_token_for_provider app, provider }.compact
@@ -117,16 +130,27 @@ module FatherlyAdvice
         # @param [App] app the app we are trying to reach
         # @param [Server::Provider] provider the oauth2 provider we will use to authenticate
         def fetch_access_token(app, provider)
-          request_hash = {
+          request_hash = request_hash_for_access_token app, provider
+          missing_keys = request_hash.select { |_k, v| v.nil? }.keys
+          raise ArgumentError, "missing #{missing_keys.first}" if missing_keys.present?
+
+          response = request :post, provider.token_url, body: request_hash.to_json
+          return nil unless response.status >= 200 && response.status < 300
+
+          AccessToken.from_json(response.body).tap(&:reset_expiration_time)
+        end
+
+        # build a request hash body for an access token
+        #
+        # @param [App] app the app we are trying to reach
+        # @param [Server::Provider] provider the oauth2 provider we will use to authenticate
+        def request_hash_for_access_token(app, provider)
+          {
             client_id: provider.client_id,
             client_secret: provider.client_secret,
             audience: app.audience,
             grant_type: app.grant_type
           }
-          response = request :post, provider.token_url, body: request_hash.to_json
-          return nil unless response.status >= 200 && response.status < 300
-
-          AccessToken.from_json(response.body).tap(&:reset_expiration_time)
         end
       end
     end
