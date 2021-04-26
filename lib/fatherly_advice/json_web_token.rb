@@ -73,9 +73,17 @@ module FatherlyAdvice
       def configure
         raise 'missing block' unless block_given?
 
-        config = SimpleHash.new server: Server,
-                                client: Client
+        config = SimpleHash.new server: server,
+                                client: client
         yield config
+      end
+
+      def client
+        Client
+      end
+
+      def server
+        Server
       end
     end
   end

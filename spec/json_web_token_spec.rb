@@ -56,4 +56,12 @@ RSpec.describe FatherlyAdvice::JsonWebToken, type: :lib do
       expect { |b| described_class.configure(&b) }.to yield_with_args(options)
     end
   end
+  context 'client' do
+    subject { described_class.client }
+    it { expect(subject).to eq described_class::Client }
+  end
+  context 'server' do
+    subject { described_class.server }
+    it { expect(subject).to eq described_class::Server }
+  end
 end
