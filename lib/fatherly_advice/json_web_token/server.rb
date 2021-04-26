@@ -8,24 +8,42 @@ module FatherlyAdvice
         include Comparable
 
         attr_reader :name, :prefix
-        attr_reader :token_url, :jwks_url, :user_info_url, :authorize_url
-        attr_reader :issuer, :audience
-        attr_reader :client_id, :client_secret
 
         def initialize(name, prefix = nil)
           @name = name.to_s.downcase
           @prefix = prefix.to_s.downcase
+        end
 
-          @token_url = get_env :token_url
-          @jwks_url = get_env :jwks_url
-          @user_info_url = get_env :user_info_url
-          @authorize_url = get_env :authorize_url
+        def token_url
+          get_env :token_url
+        end
 
-          @issuer = get_env :jwt_issuer
-          @audience = get_env :jwt_audience
+        def jwks_url
+          get_env :jwks_url
+        end
 
-          @client_id = get_env :m2m_client_id
-          @client_secret = get_env :m2m_client_secret
+        def user_info_url
+          get_env :user_info_url
+        end
+
+        def authorize_url
+          get_env :authorize_url
+        end
+
+        def issuer
+          get_env :jwt_issuer
+        end
+
+        def audience
+          get_env :jwt_audience
+        end
+
+        def client_id
+          get_env :m2m_client_id
+        end
+
+        def client_secret
+          get_env :m2m_client_secret
         end
       end
 

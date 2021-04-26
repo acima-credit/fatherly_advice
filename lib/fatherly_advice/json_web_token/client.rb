@@ -49,16 +49,20 @@ module FatherlyAdvice
         include Comparable
 
         attr_reader :name, :prefix
-        attr_reader :audience, :grant_type
 
         # @param [String] name the app we are a client of
         # @param [String] prefix the oauth provider prefix
         def initialize(name, prefix = nil)
           @name = name.to_s.downcase
           @prefix = prefix.to_s.downcase
+        end
 
-          @audience = get_env format('%s_audience', name)
-          @grant_type = get_env :grant_type, 'client_credentials'
+        def audience
+          get_env format('%s_audience', name)
+        end
+
+        def grant_type
+          get_env :grant_type, 'client_credentials'
         end
       end
 
@@ -93,7 +97,7 @@ module FatherlyAdvice
 
         # Get access tokens from all known oauth2 providers for an app we are trying to reach
         #
-        # @param [String] app_name the name of the app we need to authenticate to
+        # @pfram [String] app_name the name of the app we need to authenticate to
         def get_access_tokens(app_name)
           app = get_app app_name
           Server.providers.map { |provider| get_access_token_for_provider app, provider }.compact
