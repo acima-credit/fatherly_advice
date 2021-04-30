@@ -66,6 +66,14 @@ RSpec.describe FatherlyAdvice::JsonWebToken::Server, :env_change do
           it('client_id') { expect(provider.client_id).to be_nil }
           it('client_secret') { expect(provider.client_secret).to be_nil }
         end
+        context 'simpler audience' do
+          let(:env) do
+            {
+              'OAUTH2_AUDIENCE' => 'https://bank-account.acimacredit.com/'
+            }
+          end
+          it('audience') { expect(provider.audience).to eq 'https://bank-account.acimacredit.com/' }
+        end
         context 'server' do
           context 'validate_token' do
             let(:result) { described_class.validate_token auth0_http_token }
@@ -166,6 +174,15 @@ RSpec.describe FatherlyAdvice::JsonWebToken::Server, :env_change do
           it('audience') { expect(provider.audience).to eq 'https://bank-account.acimacredit.com/' }
           it('client_id') { expect(provider.client_id).to be_nil }
           it('client_secret') { expect(provider.client_secret).to be_nil }
+        end
+        context 'simpler audience' do
+          let(:env) do
+            {
+              'OAUTH_PROVIDERS' => 'auth0',
+              'OAUTH2_AUTH0_AUDIENCE' => 'https://bank-account.acimacredit.com/'
+            }
+          end
+          it('audience') { expect(provider.audience).to eq 'https://bank-account.acimacredit.com/' }
         end
         context 'server' do
           context 'validate_token' do

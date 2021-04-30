@@ -35,7 +35,7 @@ module FatherlyAdvice
         end
 
         def audience
-          get_env :jwt_audience
+          get_env :jwt_audience, get_env(:audience)
         end
 
         def client_id
