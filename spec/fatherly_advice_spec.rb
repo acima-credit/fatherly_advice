@@ -15,6 +15,8 @@ RSpec.describe FatherlyAdvice do
       site_settings
       enums
       json_web_token
+      db_config
+      sidekiq_helpers
     ]
   end
 
