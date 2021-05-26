@@ -10,6 +10,8 @@ require 'json'
 require 'timecop'
 require 'fatherly_advice'
 require 'yaml'
+require 'active_record'
+require 'sqlite3'
 
 ENV['REDIS_URL'] ||= 'redis://localhost:6379/5'
 
@@ -22,16 +24,16 @@ RSpec.configure do |config|
   config.filter_run focus: true if ENV['FOCUS'].to_s == 'true'
   config.disable_monkey_patching!
 
-  config.run_all_when_everything_filtered     = true
+  config.run_all_when_everything_filtered = true
   config.example_status_persistence_file_path = '.rspec_status'
-  config.shared_context_metadata_behavior     = :apply_to_host_groups
-  config.profile_examples                     = 3
-  config.order                                = :random
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+  config.profile_examples = 3
+  config.order = :random
   Kernel.srand config.seed
 
   config.expect_with :rspec do |c|
     c.include_chain_clauses_in_custom_matcher_descriptions = true
-    c.syntax                                               = :expect
+    c.syntax = :expect
   end
 
   config.mock_with :rspec do |mocks|
@@ -101,6 +103,7 @@ module LoggingHelpers
       end
     end
   end
+
   class MemoryLogger
     attr_reader :entries
 
@@ -136,6 +139,7 @@ module LoggingHelpers
       @entries << [type, msg]
     end
   end
+
   class ErrorReporter
     attr_reader :entries
 
@@ -238,12 +242,12 @@ end
 RSpec.configure do |config|
   config.include LoggingHelpers, :logs
   config.around(:example, logs: true) do |example|
-    old_root                       = FatherlyAdvice::WebServer.root
+    old_root = FatherlyAdvice::WebServer.root
     FatherlyAdvice::WebServer.root = ROOT
 
-    logger          = example_class.logger
-    old_provider    = logger.provider_type == :custom ? logger.provider : nil
-    old_reporter    = logger.error_reporter
+    logger = example_class.logger
+    old_provider = logger.provider_type == :custom ? logger.provider : nil
+    old_reporter = logger.error_reporter
     logger.provider = LoggingHelpers::MemoryLogger.new
     logger.error_reporter = LoggingHelpers::ErrorReporter.new
 
@@ -262,7 +266,7 @@ module EnvHelpers
 
     previous = {}
     set.each do |name, value|
-      new_name           = name.to_s.upcase
+      new_name = name.to_s.upcase
       previous[new_name] = ENV[new_name]
       if value.nil?
         ENV.delete new_name
@@ -349,9 +353,76 @@ module RailsHelpers
   let(:rails_logger) { RailsMock::LOGGER }
 end
 
+# Load config defaults model
+ActiveRecord::Base.establish_connection adapter: 'sqlite3',
+                                        database: ':memory:',
+                                        encoding: 'utf-8'
+conn = ActiveRecord::Base.connection
+
+unless conn.table_exists?(:config_defaults)
+  class CreateConfigDefaults < ActiveRecord::Migration[5.1]
+    def change
+      create_table :config_defaults do |t|
+        t.string :name
+        t.string :value
+      end
+    end
+  end
+
+  CreateConfigDefaults.migrate(:up)
+end
+
+class ConfigDefault < ActiveRecord::Base
+end
+
+require 'timecop'
+
+module TimecopHelpers
+  extend RSpec::Core::SharedContext
+
+  def ff_time(qty)
+    Timecop.freeze(Time.current + qty) { yield }
+  end
+end
+
+module Sidekiq
+  class ProcessSet
+    def self.list(value = :none)
+      @list = value unless value == :none
+      @list
+    end
+
+    def each
+      self.class.list.each { |x| yield x }
+    end
+  end
+
+  class Workers
+    def self.list(value = :none)
+      @list = value unless value == :none
+      @list
+    end
+
+    def each
+      self.class.list.each { |ary| yield(*ary) }
+    end
+  end
+
+  class Process
+    def initialize(attribs)
+      @attribs = attribs
+    end
+
+    def [](key)
+      @attribs[key]
+    end
+  end
+end
+
 RSpec.configure do |config|
   config.include RailsHelpers, :rails
   config.include RailsHelpers, :rails_console
+  config.include TimecopHelpers
   config.before(:example, rails: true) do
     stub_const 'Rails', RailsHelpers::RailsMock.new
   end
@@ -359,13 +430,13 @@ RSpec.configure do |config|
     stub_const 'Rails::Console', Class.new
   end
   config.around(:example, rake: true) do |example|
-    old           = $PROGRAM_NAME
+    old = $PROGRAM_NAME
     $PROGRAM_NAME = '/app/bin/rake'
     example.run
     $PROGRAM_NAME = old
   end
   config.around(:example, rails_command: true) do |example|
-    old           = $PROGRAM_NAME
+    old = $PROGRAM_NAME
     $PROGRAM_NAME = '/app/bin/rails'
     example.run
     $PROGRAM_NAME = old

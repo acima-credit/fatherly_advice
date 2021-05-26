@@ -31,17 +31,21 @@ require_relative 'fatherly_advice/only_once'
 require_relative 'fatherly_advice/enums'
 require_relative 'fatherly_advice/scrubber'
 require_relative 'fatherly_advice/json_web_token'
+require_relative 'fatherly_advice/db_config'
+require_relative 'fatherly_advice/sidekiq_helpers'
 
 module FatherlyAdvice
   def self.modules
-    @modules = SimpleHash.new env: Env,
-                              web_server: WebServer,
-                              simple_hash: SimpleHash,
-                              logging: Logging,
-                              only_once: OnlyOnce,
-                              site_settings: SiteSettings,
-                              enums: Enums,
-                              json_web_token: JsonWebToken
+    @modules ||= SimpleHash.new env: Env,
+                                web_server: WebServer,
+                                simple_hash: SimpleHash,
+                                logging: Logging,
+                                only_once: OnlyOnce,
+                                site_settings: SiteSettings,
+                                enums: Enums,
+                                json_web_token: JsonWebToken,
+                                db_config: DbConfig,
+                                sidekiq_helpers: SidekiqHelpers
   end
 
   def self.ext(*keys)
