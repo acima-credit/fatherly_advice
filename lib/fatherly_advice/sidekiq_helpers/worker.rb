@@ -67,6 +67,17 @@ module FatherlyAdvice
         from_time > deadline
       end
 
+      def match?(value)
+        case value
+        when Regexp
+          thread_id =~ value
+        when String
+          thread_id == value || thread_id.index(value)
+        else
+          false
+        end
+      end
+
       def report(_size = 90)
         puts format(
           '        %s %s (%-1.1s) %-10.10s : %s %s',

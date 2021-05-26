@@ -227,17 +227,32 @@ RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, type: :lib do
         expect { result.report }.to output(exp_output).to_stdout
 
         hostname = 'virtual-bank-ui-sidekiq-6b84868fc8-q9nbh'
+        exp_host_str = %(#<FatherlyAdvice::SidekiqHelpers::Host hostname="#{hostname}">)
         sel_host = result.hosts[hostname]
-        expect(sel_host.inspect).to eq %(#<FatherlyAdvice::SidekiqHelpers::Host hostname="#{hostname}">)
+        expect(sel_host.inspect).to eq exp_host_str
+        sel_host = result.find_host_by hostname
+        expect(sel_host.inspect).to eq exp_host_str
+        sel_host = result.find_host_by hostname.split('-').last
+        expect(sel_host.inspect).to eq exp_host_str
 
         proc_id = 'dddae808973b'
         proc_identity = %(#{hostname}:1:#{proc_id})
+        exp_proc_str = %(#<FatherlyAdvice::SidekiqHelpers::Process hostname="#{hostname}" id="#{proc_id}">)
         sel_process = sel_host.processes[proc_identity]
-        expect(sel_process.inspect).to eq %(#<FatherlyAdvice::SidekiqHelpers::Process hostname="#{hostname}" id="#{proc_id}">)
+        expect(sel_process.inspect).to eq exp_proc_str
+        sel_process = result.find_process_by proc_id
+        expect(sel_process.inspect).to eq exp_proc_str
+        sel_process = result.find_process_by proc_id[4, 6]
+        expect(sel_process.inspect).to eq exp_proc_str
 
         worker_id = 'ototdxj5p'
+        exp_work_str = %(#<FatherlyAdvice::SidekiqHelpers::Worker thread_id="#{worker_id}" stuck=true time_ago="7h 8m 25s" klass="SendBatchJob">)
         sel_worker = sel_process.workers[worker_id]
-        expect(sel_worker.inspect).to eq %(#<FatherlyAdvice::SidekiqHelpers::Worker thread_id="#{worker_id}" stuck=true time_ago="7h 8m 25s" klass="SendBatchJob">)
+        expect(sel_worker.inspect).to eq exp_work_str
+        sel_worker = result.find_worker_by worker_id
+        expect(sel_worker.inspect).to eq exp_work_str
+        sel_worker = result.find_worker_by worker_id[3, 4]
+        expect(sel_worker.inspect).to eq exp_work_str
       end
     end
   end

@@ -37,6 +37,17 @@ module FatherlyAdvice
         report_processes(size)
       end
 
+      def match?(value)
+        case value
+        when Regexp
+          hostname =~ value
+        when String
+          hostname == value || hostname.index(value)
+        else
+          false
+        end
+      end
+
       def report_processes(size)
         if processes.empty?
           puts '    [  ] no processes found!'

@@ -18,7 +18,31 @@ module FatherlyAdvice
       end
 
       def each_host
-        hosts.values.each { |x| yield x }
+        hosts.values.each { |host| yield host }
+      end
+
+      def find_host_by(value)
+        each_host { |host| return host if host.match?(value) }
+      end
+
+      def each_process
+        each_host do |host|
+          host.each_process { |process| yield process }
+        end
+      end
+
+      def find_process_by(value)
+        each_process { |process| return process if process.match?(value) }
+      end
+
+      def each_worker
+        each_process do |process|
+          process.each_worker { |worker| yield worker }
+        end
+      end
+
+      def find_worker_by(value)
+        each_worker { |worker| return worker if worker.match?(value) }
       end
 
       def ttls

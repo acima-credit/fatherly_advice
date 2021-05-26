@@ -56,6 +56,17 @@ module FatherlyAdvice
         stop!
       end
 
+      def match?(value)
+        case value
+        when Regexp
+          id =~ value
+        when String
+          id == value || id.index(value)
+        else
+          false
+        end
+      end
+
       def report(size = 90)
         puts format(
           '    %s %s : %i/%i/%i ',
