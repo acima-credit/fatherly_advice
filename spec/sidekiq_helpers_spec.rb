@@ -224,8 +224,6 @@ RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, type: :lib do
       Timecop.travel(generation_time) do
         expect { result }.to_not raise_error
 
-        result.report
-
         expect { result.report }.to output(exp_output).to_stdout
 
         hostname = 'virtual-bank-ui-sidekiq-6b84868fc8-q9nbh'

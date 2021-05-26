@@ -33,13 +33,27 @@ module FatherlyAdvice
         self
       end
 
+      def process_set
+        ensure_api_present
+        Sidekiq::ProcessSet.new
+      end
+
+      delegate :cleanup, :size, :leader, to: :process_set, prefix: :process_set
+
+      def worker_set
+        ensure_api_present
+        Sidekiq::Workers.new
+      end
+
+      delegate :size, to: :worker_set, prefix: :worker_set
+
       def rebuild
         @hosts = {}
         build
       end
 
-      def stop_stuck?
-        each_host(&:stop_stuck?)
+      def stop_stuck!
+        each_host(&:stop_stuck!)
       end
 
       def report(size = 90)
@@ -63,7 +77,7 @@ module FatherlyAdvice
       end
 
       def build_hosts
-        Sidekiq::ProcessSet.new.each do |sidekiq_process|
+        process_set.each do |sidekiq_process|
           process = Process.new sidekiq_process
           hosts[process.hostname] ||= Host.new process.hostname
           hosts[process.hostname].processes[process.identity] = process
@@ -71,7 +85,7 @@ module FatherlyAdvice
       end
 
       def build_workers
-        Sidekiq::Workers.new.each do |process_id, thread_id, work|
+        worker_set.each do |process_id, thread_id, work|
           worker = Worker.new process_id, thread_id, work
           each_host do |host|
             host.each_process do |process|
