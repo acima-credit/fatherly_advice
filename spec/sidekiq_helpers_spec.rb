@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, :focus, type: :lib do
+RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, type: :lib do
   describe '.build' do
     let(:generation_time) { Time.new 2021, 5, 19, 17, 12, 6 }
     let(:processes) do
@@ -196,20 +196,20 @@ RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, :focus, type: :lib do
                 [  ] no workers found!
         [  ] virtual-bank-ui-sidekiq-6b84868fc8-q9nbh ============================================
             [  ] dddae808973b : 3/4/1 ------------------------------------------------------------
-                [  ] ototdxvwl : H : 24m 1s     : SendBatchJob [36495]
-                [  ] ototdybr5 : H : 2h 13m 47s : SendBatchJob [36502]
-                [XX] ototdxj5p : H : 7h 8m 25s  : SendBatchJob [36505]
+                [  ] ototdxvwl (H) 24m 1s     : SendBatchJob [36495]
+                [  ] ototdybr5 (H) 2h 13m 47s : SendBatchJob [36502]
+                [XX] ototdxj5p (H) 7h 8m 25s  : SendBatchJob [36505]
         [XX] virtual-bank-ui-sidekiq-6b84868fc8-t5v6j ============================================
             [XX] 63598e6dbe42 : 2/4/2 ------------------------------------------------------------
-                [XX] ox3iyb0et : H : 7h 8m 36s  : CreateBatchJob [36494]
-                [XX] ox3iybd69 : H : 7h 8m 3s   : CreateBatchJob [36503]
+                [XX] ox3iyb0et (H) 7h 8m 36s  : CreateBatchJob [36494]
+                [XX] ox3iybd69 (H) 7h 8m 3s   : CreateBatchJob [36503]
         [  ] virtual-bank-ui-sidekiq-high-7ddc958bc4-2dqfc =======================================
             [  ] 6a9e414a39ae : 0/4/0 ------------------------------------------------------------
                 [  ] no workers found!
         [  ] virtual-bank-ui-sidekiq-high-7ddc958bc4-vskqn =======================================
             [  ] 4fd3b9886a65 : 2/4/1 ------------------------------------------------------------
-                [XX] ox3iyakk9 : H : 7h 4m 49s  : SendBatchJob [36506]
-                [  ] ox3iyaxbp : H : 1h 33m 25s : SendBatchJob [36512]
+                [XX] ox3iyakk9 (H) 7h 4m 49s  : SendBatchJob [36506]
+                [  ] ox3iyaxbp (H) 1h 33m 25s : SendBatchJob [36512]
         [  ] virtual-bank-ui-sidekiq-high-7ddc958bc4-xjwt6 =======================================
             [  ] ac02671870e9 : 0/4/0 ------------------------------------------------------------
                 [  ] no workers found!
@@ -223,8 +223,23 @@ RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, :focus, type: :lib do
     it 'builds a tree of hosts, processes and workers' do
       Timecop.travel(generation_time) do
         expect { result }.to_not raise_error
+
         result.report
+
         expect { result.report }.to output(exp_output).to_stdout
+
+        hostname = 'virtual-bank-ui-sidekiq-6b84868fc8-q9nbh'
+        sel_host = result.hosts[hostname]
+        expect(sel_host.inspect).to eq %(#<FatherlyAdvice::SidekiqHelpers::Host hostname="#{hostname}">)
+
+        proc_id = 'dddae808973b'
+        proc_identity = %(#{hostname}:1:#{proc_id})
+        sel_process = sel_host.processes[proc_identity]
+        expect(sel_process.inspect).to eq %(#<FatherlyAdvice::SidekiqHelpers::Process hostname="#{hostname}" id="#{proc_id}">)
+
+        worker_id = 'ototdxj5p'
+        sel_worker = sel_process.workers[worker_id]
+        expect(sel_worker.inspect).to eq %(#<FatherlyAdvice::SidekiqHelpers::Worker thread_id="#{worker_id}" stuck=true time_ago="7h 8m 25s" klass="SendBatchJob">)
       end
     end
   end

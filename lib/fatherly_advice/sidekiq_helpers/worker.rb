@@ -22,7 +22,13 @@ module FatherlyAdvice
       end
 
       def short_queue
-        queue.to_s.gsub(/priority/i, '').split('_').map { |x| x[0, 1] }.join.upcase
+        queue.to_s.
+          gsub(/priority/i, '').
+          gsub(/queue/i, '').
+          split('_').
+          map { |x| x[0, 1] }.
+          join.
+          upcase
       end
 
       def time_ago_parts(from_time = Time.current)
@@ -60,6 +66,29 @@ module FatherlyAdvice
         deadline = run_at + ttl
         from_time > deadline
       end
+
+      def report(_size = 90)
+        puts format(
+          '        %s %s (%-1.1s) %-10.10s : %s %s',
+          stuck? ? '[XX]' : '[  ]',
+          thread_id,
+          short_queue,
+          time_ago[0, 15],
+          klass,
+          args.inspect
+        )
+      end
+
+      def inspect
+        format '#<%s thread_id=%s stuck=%s time_ago=%s klass=%s>',
+               self.class.name,
+               thread_id.inspect,
+               stuck?.inspect,
+               time_ago.inspect,
+               klass.inspect
+      end
+
+      alias to_s inspect
     end
   end
 end

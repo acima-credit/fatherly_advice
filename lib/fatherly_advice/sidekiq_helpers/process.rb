@@ -5,10 +5,11 @@ module FatherlyAdvice
     class Process
       include SafeSetter
 
-      attr_reader :hostname, :started_at, :pid, :tag, :concurrency,
+      attr_reader :orig_process, :hostname, :started_at, :pid, :tag, :concurrency,
                   :queues, :labels, :identity, :busy, :beat, :quiet
 
       def initialize(process = {})
+        @orig_process = process
         @hostname = set process['hostname'], :string, 'missing'
         @started_at = set process['started_at'], :time
         @hostname = set process['hostname'], :string
@@ -32,6 +33,10 @@ module FatherlyAdvice
         @workers ||= {}
       end
 
+      def each_worker
+        workers.values.each { |x| yield x }
+      end
+
       def stuck?
         return false if workers.empty?
 
@@ -41,6 +46,45 @@ module FatherlyAdvice
       def stuck_count
         workers.values.count(&:stuck?)
       end
+
+      delegate :quiet!, :stop!, :dump_threads, :stopping?, to: :orig_process
+
+      def stop_stuck!
+        return unless stuck?
+
+        puts format('> stopping %s ...', identity)
+        stop!
+      end
+
+      def report(size = 90)
+        puts format(
+          '    %s %s : %i/%i/%i ',
+          stuck? ? '[XX]' : '[  ]',
+          id,
+          busy,
+          concurrency,
+          stuck_count
+        ).ljust(size, '-')
+
+        report_workers(size)
+      end
+
+      def report_workers(size)
+        if workers.empty?
+          puts '        [  ] no workers found!'
+        else
+          each_worker { |worker| worker.report(size) }
+        end
+      end
+
+      def inspect
+        format '#<%s hostname=%s id=%s>',
+               self.class.name,
+               hostname.inspect,
+               id.inspect
+      end
+
+      alias to_s inspect
     end
   end
 end
