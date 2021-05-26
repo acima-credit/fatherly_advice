@@ -234,6 +234,8 @@ RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, type: :lib do
         expect(sel_host.inspect).to eq exp_host_str
         sel_host = result.find_host_by hostname.split('-').last
         expect(sel_host.inspect).to eq exp_host_str
+        no_host = result.find_host_by 'unknown'
+        expect(no_host).to be_nil
 
         proc_id = 'dddae808973b'
         proc_identity = %(#{hostname}:1:#{proc_id})
@@ -244,6 +246,8 @@ RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, type: :lib do
         expect(sel_process.inspect).to eq exp_proc_str
         sel_process = result.find_process_by proc_id[4, 6]
         expect(sel_process.inspect).to eq exp_proc_str
+        no_process = result.find_process_by 'unknown'
+        expect(no_process).to be_nil
 
         worker_id = 'ototdxj5p'
         exp_work_str = %(#<FatherlyAdvice::SidekiqHelpers::Worker thread_id="#{worker_id}" stuck=true time_ago="7h 8m 25s" klass="SendBatchJob">)
@@ -253,6 +257,8 @@ RSpec.describe FatherlyAdvice::SidekiqHelpers::WorkSet, type: :lib do
         expect(sel_worker.inspect).to eq exp_work_str
         sel_worker = result.find_worker_by worker_id[3, 4]
         expect(sel_worker.inspect).to eq exp_work_str
+        no_worker = result.find_worker_by 'unknown'
+        expect(no_worker).to be_nil
       end
     end
   end

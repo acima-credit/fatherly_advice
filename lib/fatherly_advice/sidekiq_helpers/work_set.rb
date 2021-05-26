@@ -23,6 +23,7 @@ module FatherlyAdvice
 
       def find_host_by(value)
         each_host { |host| return host if host.match?(value) }
+        nil
       end
 
       def each_process
@@ -33,6 +34,7 @@ module FatherlyAdvice
 
       def find_process_by(value)
         each_process { |process| return process if process.match?(value) }
+        nil
       end
 
       def each_worker
@@ -43,6 +45,7 @@ module FatherlyAdvice
 
       def find_worker_by(value)
         each_worker { |worker| return worker if worker.match?(value) }
+        nil
       end
 
       def ttls
